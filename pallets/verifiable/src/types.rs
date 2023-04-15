@@ -6,9 +6,8 @@ use frame_support::codec::{Decode, Encode, MaxEncodedLen};
 
 use sp_core::ed25519::Signature;
 use sp_runtime::RuntimeDebug;
-
+// TODO: Implement this
 /// Stores Signatures by DID Controllers
-/// A DID can have at least a controller
 #[derive(
 	Encode, Decode, CloneNoBound, PartialEqNoBound, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen,
 )]
@@ -22,6 +21,7 @@ where
 	pub active: bool,
 }
 
+/// Stores DID metadata
 #[derive(
 	Encode,
 	Decode,
@@ -58,6 +58,7 @@ where
 	pub sender_account_id: AccountId,
 }
 
+/// DID Metadata Input Payload
 #[derive(
 	Encode,
 	Decode,
@@ -89,6 +90,7 @@ where
 	pub sender_account_id: AccountId,
 }
 
+/// Verifiable Credential Metadata Input Payload
 #[derive(
 	Encode,
 	Decode,
@@ -117,6 +119,8 @@ where
 	pub active: Option<bool>,
 }
 
+
+/// Verifiable Credential Metadata
 #[derive(
 	Encode,
 	Decode,
@@ -165,6 +169,7 @@ where
 	}
 }
 
+/// Verifiable Credential Status
 #[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum VerifiableCredentialStatus {
 	Pending,
