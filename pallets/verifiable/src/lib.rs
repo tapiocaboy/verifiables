@@ -116,28 +116,28 @@ pub mod pallet {
 
 		/// Verifiable credential fingerprint created
 		VerifiableCredentialFingerPrintCreated {
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			account_id: T::AccountId,
 			created_block_number: T::BlockNumber,
 		},
 
 		/// Verifiable credential fingerprint updated
 		VerifiableCredentialFingerPrintUpdated {
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			account_id: T::AccountId,
 			updated_block_number: T::BlockNumber,
 		},
 
 		/// Verifiable credential fingerprint revoked
 		VerifiableCredentialFingerPrintRevoked {
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			account_id: T::AccountId,
 			revoked_block_number: T::BlockNumber,
 		},
 
 		/// VerifiableCredentialEvent
 		VerifiableCredentialEvent {
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			origin: T::AccountId,
 			block_number: T::BlockNumber,
 			status: VerifiableCredentialStatus,
@@ -295,7 +295,7 @@ pub mod pallet {
 
 		/// Create Verifiable Credential
 		// # Arguments
-		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// * `vc_fingerprint` - Verifiable Credential Finger Print
 		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
 		/// # Errors
 		/// * `VerifiableCredentialFingerPrintExists` - Verifiable Credential Finger Print already
@@ -304,7 +304,7 @@ pub mod pallet {
 		#[pallet::weight(T::WeightInfo::create_verifiable_credential())]
 		pub fn create_verifiable_credential(
 			origin: OriginFor<T>,
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			verifiable_credential_input_metadata: VerifiableCredentialMetadataPayload<
 				T::AccountId,
 				T::PublicKeySize,
@@ -320,7 +320,7 @@ pub mod pallet {
 			);
 
 			ensure!(
-				!VerifiableCredential::<T>::contains_key(&vc_finger_print),
+				!VerifiableCredential::<T>::contains_key(&vc_fingerprint),
 				Error::<T>::VerifiableCredentialFingerPrintExists
 			);
 
@@ -335,11 +335,11 @@ pub mod pallet {
 			};
 
 			VerifiableCredential::<T>::insert(
-				vc_finger_print.clone(),
+				vc_fingerprint.clone(),
 				verifiable_credential_metadata,
 			);
 			let event = Event::VerifiableCredentialFingerPrintCreated {
-				vc_finger_print,
+				vc_fingerprint,
 				account_id: who,
 				created_block_number: block_number,
 			};
@@ -351,7 +351,7 @@ pub mod pallet {
 
 		/// Revoke Verifiable Credential
 		/// # Arguments
-		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// * `vc_fingerprint` - Verifiable Credential Finger Print
 		/// # Errors
 		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print
 		///   does not exist
@@ -359,21 +359,21 @@ pub mod pallet {
 		#[pallet::weight(T::WeightInfo::revoke_verifiable_credential())]
 		pub fn revoke_verifiable_credential(
 			origin: OriginFor<T>,
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 		) -> DispatchResultWithPostInfo {
 			let who = ensure_signed(origin)?;
 
 			ensure!(
-				VerifiableCredential::<T>::contains_key(&vc_finger_print),
+				VerifiableCredential::<T>::contains_key(&vc_fingerprint),
 				Error::<T>::VerifiableCredentialFingerPrintDoesNotExist
 			);
 
 			let block_number = <frame_system::Pallet<T>>::block_number();
 
-			VerifiableCredential::<T>::remove(&vc_finger_print);
+			VerifiableCredential::<T>::remove(&vc_fingerprint);
 
 			let event = Event::VerifiableCredentialFingerPrintRevoked {
-				vc_finger_print,
+				vc_fingerprint,
 				account_id: who,
 				revoked_block_number: block_number,
 			};
@@ -384,7 +384,7 @@ pub mod pallet {
 
 		/// Update Verifiable Credential
 		/// # Arguments
-		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// * `vc_fingerprint` - Verifiable Credential Finger Print
 		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
 		/// # Errors
 		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print
@@ -393,7 +393,7 @@ pub mod pallet {
 		#[pallet::weight(T::WeightInfo::update_verifiable_credential())]
 		pub fn update_verifiable_credential(
 			origin: OriginFor<T>,
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			verifiable_credential_input_metadata: VerifiableCredentialMetadataPayload<
 				T::AccountId,
 				T::PublicKeySize,
@@ -401,7 +401,7 @@ pub mod pallet {
 		) -> DispatchResultWithPostInfo {
 			let who = ensure_signed(origin)?;
 
-			VerifiableCredential::<T>::mutate(vc_finger_print.clone(), |vc| match vc {
+			VerifiableCredential::<T>::mutate(vc_fingerprint.clone(), |vc| match vc {
 				| None => Err(Error::<T>::VerifiableCredentialFingerPrintDoesNotExist),
 				| Some(vc) => {
 					let block_number = <frame_system::Pallet<T>>::block_number();
@@ -415,7 +415,7 @@ pub mod pallet {
 
 					*vc = verifiable_credential_metadata;
 					let event = Event::VerifiableCredentialFingerPrintUpdated {
-						vc_finger_print,
+						vc_fingerprint,
 						account_id: who,
 						updated_block_number: block_number,
 					};
@@ -431,19 +431,18 @@ pub mod pallet {
 		pub fn trace_credential(
 			origin: OriginFor<T>,
 			account_id: Option<T::AccountId>,
-			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
+			vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize>,
 			status: VerifiableCredentialStatus,
 		) -> DispatchResultWithPostInfo {
 			let who = ensure_signed(origin)?;
 
 			ensure!(
-				VerifiableCredential::<T>::contains_key(&vc_finger_print),
+				VerifiableCredential::<T>::contains_key(&vc_fingerprint),
 				Error::<T>::VerifiableCredentialFingerPrintDoesNotExist
 			);
 
-			let verifiable_credential_metadata =
-				VerifiableCredential::<T>::get(&vc_finger_print)
-					.ok_or(Error::<T>::VerifiableCredentialFingerPrintDoesNotExist)?;
+			let verifiable_credential_metadata = VerifiableCredential::<T>::get(&vc_fingerprint)
+				.ok_or(Error::<T>::VerifiableCredentialFingerPrintDoesNotExist)?;
 			ensure!(
 				verifiable_credential_metadata.active == Some(true),
 				Error::<T>::VerifiableCredentialInactive
@@ -453,7 +452,7 @@ pub mod pallet {
 			let mut vc_log =
 				VerifiableCredentialLog { account_id, block_number: Some(block_number), status };
 
-			match VerifiableCredentialTrail::<T>::get(&vc_finger_print) {
+			match VerifiableCredentialTrail::<T>::get(&vc_fingerprint) {
 				None => {
 					let mut arr: BoundedVec<
 						VerifiableCredentialLog<T::AccountId, T::BlockNumber>,
@@ -462,9 +461,9 @@ pub mod pallet {
 					vc_log.status = VerifiableCredentialStatus::Created;
 					arr.try_push(vc_log)
 						.map_err(|_| Error::<T>::VerifiableCredentialLogLimitReached)?;
-					VerifiableCredentialTrail::<T>::insert(&vc_finger_print, arr);
+					VerifiableCredentialTrail::<T>::insert(&vc_fingerprint, arr);
 					let event = Event::VerifiableCredentialEvent {
-						vc_finger_print,
+						vc_fingerprint,
 						origin: who,
 						block_number,
 						status: VerifiableCredentialStatus::Created,
@@ -473,7 +472,7 @@ pub mod pallet {
 				},
 				Some(_) => {
 					VerifiableCredentialTrail::<T>::try_mutate(
-						vc_finger_print.clone(),
+						vc_fingerprint.clone(),
 						|x| -> DispatchResult {
 							let x = x
 								.as_mut()
@@ -481,7 +480,7 @@ pub mod pallet {
 							x.try_push(vc_log.clone())
 								.map_err(|_| Error::<T>::VerifiableCredentialLogLimitReached)?;
 							let event = Event::VerifiableCredentialEvent {
-								vc_finger_print,
+								vc_fingerprint,
 								origin: who,
 								block_number,
 								status: vc_log.status,

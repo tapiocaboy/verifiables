@@ -4,7 +4,6 @@ use frame_benchmarking::{account as benchmark_account, benchmarks, impl_benchmar
 use frame_support::BoundedVec;
 use frame_system::RawOrigin;
 
-use sp_runtime::traits::Bounded;
 use sp_std::prelude::*;
 
 fn assert_last_event<T: Config>(generic_event: <T as Config>::RuntimeEvent) {
@@ -125,13 +124,18 @@ benchmarks! {
 			updated_block_number: 1u32.into(),
 			did_ref: None,
 			sender_account_id: get_account::<T>("BOB"),
+
 		});
+		assert_last_event::<T>(Event::<T>::DIDDocumentCreated {
+			did_uri,
+			account_id: get_account::<T>("ALICE"),
+			created_block_number: 1u32.into(),
+		}.into());
 	}
 
 	update_did_document {
 		prepare_benchmark_data_did::<T>();
 		let alice: T::AccountId = get_account::<T>("ALICE");
-
 
 		let did_uri: BoundedVec<u8, T::DIDURISize> = DID_URI.as_bytes().to_vec().try_into().unwrap();
 
@@ -169,6 +173,11 @@ benchmarks! {
 		assert_eq!(DIDDocument::<T>::get(&did_uri).unwrap().did_resolution_metadata ,Some(did_resolution_metadata));
 		assert_eq!(DIDDocument::<T>::get(&did_uri).unwrap().did_document_metadata, Some(did_document_metadata));
 		assert_eq!(DIDDocument::<T>::get(&did_uri).unwrap().sender_account_id , get_account::<T>("BOB"));
+		assert_last_event::<T>(Event::<T>::DIDDocumentUpdated {
+			did_uri,
+			account_id: get_account::<T>("ALICE"),
+			updated_block_number: 1u32.into(),
+		}.into());
 	}
 
 	revoke_did_document {
@@ -179,6 +188,11 @@ benchmarks! {
 	}: _(origin::<T>("ALICE"),did_uri.clone())
 	verify {
 		assert!(DIDDocument::<T>::get(&did_uri).is_none());
+		assert_last_event::<T>(Event::<T>::DIDDocumentRevoked {
+			did_uri,
+			account_id: get_account::<T>("ALICE"),
+			revoked_block_number: 1u32.into(),
+		}.into());
 	}
 
 	create_verifiable_credential{
@@ -205,6 +219,12 @@ benchmarks! {
 			block_number: 1u32.into(),
 			updated_block_number: 1u32.into(),
 		});
+
+		assert_last_event::<T>(Event::<T>::VerifiableCredentialFingerPrintCreated {
+			vc_fingerprint,
+			account_id: get_account::<T>("ALICE"),
+			created_block_number: 1u32.into(),
+		}.into());
 	}
 
 	update_verifiable_credential{
@@ -228,6 +248,12 @@ benchmarks! {
 		assert_eq!(VerifiableCredential::<T>::get(&vc_fingerprint).unwrap().account_id, Some(get_account::<T>("BOB")));
 		assert_eq!(VerifiableCredential::<T>::get(&vc_fingerprint).unwrap().public_key, public_key);
 		assert_eq!(VerifiableCredential::<T>::get(&vc_fingerprint).unwrap().active, Some(true));
+		assert_last_event::<T>(Event::<T>::VerifiableCredentialFingerPrintUpdated {
+			vc_fingerprint,
+			account_id:  get_account::<T>("ALICE"),
+			updated_block_number: 1u32.into(),
+		}.into());
+
 	}
 	revoke_verifiable_credential{
 		prepare_benchmark_verifiable_credential::<T>();
@@ -237,14 +263,16 @@ benchmarks! {
 	}: _(origin::<T>("ALICE"),vc_fingerprint.clone())
 	verify {
 		assert!(VerifiableCredential::<T>::get(&vc_fingerprint).is_none());
-
+		assert_last_event::<T>(Event::<T>::VerifiableCredentialFingerPrintRevoked {
+				vc_fingerprint,
+				account_id: get_account::<T>("ALICE"),
+				revoked_block_number: 1u32.into(),
+			}.into());
 	}
 
 	trace_credential {
 		prepare_benchmark_verifiable_credential::<T>();
 		let vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize> = VC_FINGERPRINT.as_bytes().to_vec().try_into().unwrap();
-
-
 	}: _(origin::<T>("ALICE"),
 		Some(get_account::<T>("BOB")),
 		vc_fingerprint.clone(),
@@ -255,6 +283,12 @@ benchmarks! {
 		let results = VerifiableCredentialTrail::<T>::get(&vc_fingerprint).unwrap();
 		assert_eq!(results[0].account_id, Some(get_account::<T>("BOB")));
 		assert_eq!(results[0].status, VerifiableCredentialStatus::Created);
+		assert_last_event::<T>(Event::<T>::VerifiableCredentialEvent {
+			vc_fingerprint,
+			origin: get_account::<T>("ALICE"),
+			block_number: 1u32.into(),
+			status: VerifiableCredentialStatus::Created,
+		}.into());
 	}
 }
 
