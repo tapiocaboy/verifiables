@@ -28,7 +28,7 @@ benchmarks! {
 	create_did {
 		prepare_benchmarks::<T>();
 		let alice: T::AccountId = get_account::<T>("ALICE");
-		let did_uri: BoundedVec<u8, T::DIDURISize> = "did:neos:0x1234567890123456789012345678901234567890"
+		let did_uri: BoundedVec<u8, T::DIDURISize> = "did:aloo:0x1234567890123456789012345678901234567890"
 		.as_bytes()
 		.to_vec()
 		.try_into()
