@@ -390,9 +390,9 @@ mod update_verifiable_credential {
 }
 
 mod revoke_verifiable_credential {
-
+	use frame_support::assert_noop;
 	use super::*;
-	use crate::{VerifiableCredential, VerifiableCredentialMetadataPayload};
+	use crate::{Error, VerifiableCredential, VerifiableCredentialMetadataPayload};
 
 	#[test]
 	fn revoke_verifiable_credential() {
@@ -419,6 +419,20 @@ mod revoke_verifiable_credential {
 			assert_ok!(Verifiable::revoke_verifiable_credential(alice, vc_fingerprint.clone()));
 
 			assert!(VerifiableCredential::<Test>::get(&vc_fingerprint).is_none());
+		});
+	}
+
+	#[test]
+	fn revoke_non_exising_verifiable_credential() {
+		new_test_ext().execute_with(|| {
+			let alice: mock::RuntimeOrigin = origin(ALICE);
+			let vc_fingerprint: BoundedVec<u8, VCFingerPrintSize> =
+				"vc_fingerprint".as_bytes().to_vec().try_into().unwrap();
+
+			assert_noop!(
+				Verifiable::revoke_verifiable_credential(alice, vc_fingerprint.clone()),
+				Error::<Test>::VerifiableCredentialFingerPrintDoesNotExist
+			);
 		});
 	}
 }

@@ -25,7 +25,7 @@ sp-std                          = {  git = "https://github.com/paritytech/substr
 frame-benchmarking 				= { default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30" }
 
 [dev-dependencies]
-pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.30" }
+pallet-balances 				= { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.30" }
 
 
 [features]

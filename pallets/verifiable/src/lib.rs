@@ -284,13 +284,6 @@ pub mod pallet {
 			Ok(().into())
 		}
 
-		/// Create a verifiable credential
-		/// #Arguments
-		/// * `public_key` - Public key of the DID Document
-		/// * `vc_hash` - Hash of the verifiable credential
-		/// * `active` - Active status of the verifiable credential
-		/// #Returns
-		/// * `DispatchResultWithPostInfo`
 		#[pallet::weight(T::WeightInfo::create_verifiable_credential())]
 		pub fn create_verifiable_credential(
 			origin: OriginFor<T>,
@@ -339,11 +332,6 @@ pub mod pallet {
 			Ok(().into())
 		}
 
-		/// Revoke a verifiable credential
-		/// #Arguments
-		/// * `vc_hash` - Hash of the verifiable credential
-		/// #Returns
-		/// * `DispatchResultWithPostInfo`
 		#[pallet::weight(T::WeightInfo::revoke_verifiable_credential())]
 		pub fn revoke_verifiable_credential(
 			origin: OriginFor<T>,
@@ -370,12 +358,6 @@ pub mod pallet {
 			Ok(().into())
 		}
 
-		/// Update a verifiable credential
-		/// #Arguments
-		/// * `vc_hash` - Hash of the verifiable credential
-		/// * `active` - Active status of the verifiable credential
-		/// #Returns
-		/// * `DispatchResultWithPostInfo`
 		#[pallet::weight(T::WeightInfo::update_verifiable_credential())]
 		pub fn update_verifiable_credential(
 			origin: OriginFor<T>,
@@ -413,12 +395,6 @@ pub mod pallet {
 			Ok(().into())
 		}
 
-		/// Trace a verifiable credential
-		/// #Arguments
-		/// * `vc_hash` - Hash of the verifiable credential
-		/// * `event` - Event of the verifiable credential
-		/// #Returns
-		/// * `DispatchResultWithPostInfo`
 		#[pallet::weight(T::WeightInfo::trace_credential())]
 		pub fn trace_credential(
 			origin: OriginFor<T>,
