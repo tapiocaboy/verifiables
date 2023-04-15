@@ -94,10 +94,7 @@ mod create_did {
 			};
 
 			assert_ok!(Verifiable::create_did(alice.clone(), did_uri.clone(), did.clone()));
-			assert_noop!(
-				Verifiable::create_did(alice, did_uri.clone(), did),
-				Error::<Test>::DIDExists
-			);
+			assert_noop!(Verifiable::create_did(alice, did_uri, did), Error::<Test>::DIDExists);
 		});
 	}
 }
@@ -139,7 +136,7 @@ mod revoke_did {
 			let alice: mock::RuntimeOrigin = origin(ALICE);
 			let did_uri = get_did_uri();
 			assert_noop!(
-				Verifiable::revoke_did_document(alice, did_uri.clone()),
+				Verifiable::revoke_did_document(alice, did_uri),
 				Error::<Test>::DIDDoesNotExist
 			);
 		});
@@ -207,7 +204,7 @@ mod update_did {
 				sender_account_id: 2,
 			};
 			assert_noop!(
-				Verifiable::update_did_document(alice, did_uri.clone(), did),
+				Verifiable::update_did_document(alice, did_uri, did),
 				Error::<Test>::DIDDoesNotExist
 			);
 		});
@@ -263,7 +260,7 @@ mod create_verifiable_credential {
 			.unwrap();
 			let vc_metadata_input = VerifiableCredentialMetadataPayload {
 				account_id: Some(1),
-				public_key: public_key.clone(),
+				public_key,
 				active: Some(true),
 			};
 			assert_ok!(Verifiable::create_verifiable_credential(
@@ -272,11 +269,7 @@ mod create_verifiable_credential {
 				vc_metadata_input.clone()
 			));
 			assert_noop!(
-				Verifiable::create_verifiable_credential(
-					alice,
-					vc_fingerprint.clone(),
-					vc_metadata_input
-				),
+				Verifiable::create_verifiable_credential(alice, vc_fingerprint, vc_metadata_input),
 				Error::<Test>::VerifiableCredentialFingerPrintExists
 			);
 		});
@@ -289,23 +282,15 @@ mod create_verifiable_credential {
 			let vc_fingerprint: BoundedVec<u8, VCFingerPrintSize> =
 				"vc_fingerprint".as_bytes().to_vec().try_into().unwrap();
 
-
-
-			let public_key: BoundedVec<u8, PublicKeySize> = vec![255,32]
-				.try_into()
-				.unwrap();
+			let public_key: BoundedVec<u8, PublicKeySize> = vec![255, 32].try_into().unwrap();
 			let vc_metadata_input = VerifiableCredentialMetadataPayload {
 				account_id: Some(1),
-				public_key: public_key.clone(),
+				public_key,
 				active: Some(true),
 			};
 
 			assert_noop!(
-				Verifiable::create_verifiable_credential(
-					alice,
-					vc_fingerprint.clone(),
-					vc_metadata_input
-				),
+				Verifiable::create_verifiable_credential(alice, vc_fingerprint, vc_metadata_input),
 				Error::<Test>::InvalidPublicKey
 			);
 		});
@@ -378,11 +363,7 @@ mod update_verifiable_credential {
 			};
 
 			assert_noop!(
-				Verifiable::update_verifiable_credential(
-					alice,
-					vc_fingerprint.clone(),
-					vc_metadata_input
-				),
+				Verifiable::update_verifiable_credential(alice, vc_fingerprint, vc_metadata_input),
 				Error::<Test>::VerifiableCredentialFingerPrintDoesNotExist
 			);
 		});
@@ -390,9 +371,9 @@ mod update_verifiable_credential {
 }
 
 mod revoke_verifiable_credential {
-	use frame_support::assert_noop;
 	use super::*;
 	use crate::{Error, VerifiableCredential, VerifiableCredentialMetadataPayload};
+	use frame_support::assert_noop;
 
 	#[test]
 	fn revoke_verifiable_credential() {
@@ -430,7 +411,7 @@ mod revoke_verifiable_credential {
 				"vc_fingerprint".as_bytes().to_vec().try_into().unwrap();
 
 			assert_noop!(
-				Verifiable::revoke_verifiable_credential(alice, vc_fingerprint.clone()),
+				Verifiable::revoke_verifiable_credential(alice, vc_fingerprint),
 				Error::<Test>::VerifiableCredentialFingerPrintDoesNotExist
 			);
 		});
@@ -480,7 +461,7 @@ mod trace_credential {
 			assert_eq!(result[0].status, VerifiableCredentialStatus::Created);
 
 			assert_ok!(Verifiable::trace_credential(
-				alice.clone(),
+				alice,
 				Some(CHARLIE),
 				vc_fingerprint.clone(),
 				VerifiableCredentialStatus::Scanned

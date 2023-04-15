@@ -134,7 +134,7 @@ pub mod pallet {
 			account_id: T::AccountId,
 			revoked_block_number: T::BlockNumber,
 		},
-		
+
 		/// VerifiableCredentialEvent
 		VerifiableCredentialEvent {
 			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
@@ -182,7 +182,6 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-
 		/// Create DID Document
 		/// # Arguments
 		/// * `did_uri` - DID URI
@@ -299,7 +298,8 @@ pub mod pallet {
 		/// * `vc_finger_print` - Verifiable Credential Finger Print
 		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
 		/// # Errors
-		/// * `VerifiableCredentialFingerPrintExists` - Verifiable Credential Finger Print already exists
+		/// * `VerifiableCredentialFingerPrintExists` - Verifiable Credential Finger Print already
+		///   exists
 		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::create_verifiable_credential())]
 		pub fn create_verifiable_credential(
@@ -353,7 +353,8 @@ pub mod pallet {
 		/// # Arguments
 		/// * `vc_finger_print` - Verifiable Credential Finger Print
 		/// # Errors
-		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print does not exist
+		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print
+		///   does not exist
 		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::revoke_verifiable_credential())]
 		pub fn revoke_verifiable_credential(
@@ -386,7 +387,8 @@ pub mod pallet {
 		/// * `vc_finger_print` - Verifiable Credential Finger Print
 		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
 		/// # Errors
-		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print does not exist
+		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print
+		///   does not exist
 		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::update_verifiable_credential())]
 		pub fn update_verifiable_credential(
@@ -451,8 +453,6 @@ pub mod pallet {
 			let mut vc_log =
 				VerifiableCredentialLog { account_id, block_number: Some(block_number), status };
 
-				
-
 			match VerifiableCredentialTrail::<T>::get(&vc_finger_print) {
 				None => {
 					let mut arr: BoundedVec<
@@ -460,11 +460,11 @@ pub mod pallet {
 						T::MetadataSize,
 					> = Default::default();
 					vc_log.status = VerifiableCredentialStatus::Created;
-					arr.try_push(vc_log.clone())
+					arr.try_push(vc_log)
 						.map_err(|_| Error::<T>::VerifiableCredentialLogLimitReached)?;
 					VerifiableCredentialTrail::<T>::insert(&vc_finger_print, arr);
 					let event = Event::VerifiableCredentialEvent {
-						vc_finger_print: vc_finger_print.clone(),
+						vc_finger_print,
 						origin: who,
 						block_number,
 						status: VerifiableCredentialStatus::Created,
@@ -499,7 +499,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Increment the cluster id generator and return the id
 		fn is_substrate_public_key(public_key: BoundedVec<u8, T::PublicKeySize>) -> bool {
-			T::AccountId::decode(&mut &public_key.clone().to_vec()[..]).is_ok()
+			T::AccountId::decode(&mut &public_key.to_vec()[..]).is_ok()
 		}
 	}
 }
