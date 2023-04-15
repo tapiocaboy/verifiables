@@ -71,11 +71,6 @@ pub mod pallet {
 	>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn get_did_accounts)]
-	pub(super) type DIDs<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::AccountId, BoundedVec<u8, T::MetadataSize>>;
-
-	#[pallet::storage]
 	#[pallet::getter(fn get_verifiable_credential_trail)]
 	pub(super) type VerifiableCredentialTrail<T: Config> = StorageMap<
 		_,
@@ -139,6 +134,8 @@ pub mod pallet {
 			account_id: T::AccountId,
 			revoked_block_number: T::BlockNumber,
 		},
+		
+		/// VerifiableCredentialEvent
 		VerifiableCredentialEvent {
 			vc_finger_print: BoundedVec<u8, T::VCFingerPrintSize>,
 			origin: T::AccountId,
@@ -185,6 +182,14 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
+
+		/// Create DID Document
+		/// # Arguments
+		/// * `did_uri` - DID URI
+		/// * `did_input` - DID Document
+		/// # Errors
+		/// * `DIDExists` - DID Document already exists
+		/// * `InvalidDIDURI` - DID Document URI is invalid
 		#[pallet::weight(T::WeightInfo::create_did_document())]
 		pub fn create_did(
 			origin: OriginFor<T>,
@@ -218,14 +223,13 @@ pub mod pallet {
 			Ok(().into())
 		}
 
-		/// Update a DID Document
-		/// #Arguments
+		/// Update DID Document
+		/// # Arguments
 		/// * `did_uri` - DID URI
-		/// * `did_document` - DID Document
-		/// #Returns
-		/// * `DispatchResultWithPostInfo`
-		/// #Errors
-		/// * `DispatchError::Other` - DID Document does not exist
+		/// * `did_input` - DID Document
+		/// # Errors
+		/// * `DIDDoesNotExist` - DID Document not exists
+		/// * `InvalidDIDURI` - DID Document URI is invalid
 		#[pallet::weight(T::WeightInfo::update_did_document())]
 		pub fn update_did_document(
 			origin: OriginFor<T>,
@@ -262,6 +266,12 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		/// Revoke DID Document
+		/// # Arguments
+		/// * `did_uri` - DID URI
+		/// # Errors
+		/// * `DIDDoesNotExist` - DID Document not exists
+		/// * `InvalidDIDURI` - DID Document URI is invalid
 		#[pallet::weight(T::WeightInfo::revoke_did_document())]
 		pub fn revoke_did_document(
 			origin: OriginFor<T>,
@@ -284,6 +294,13 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		/// Create Verifiable Credential
+		// # Arguments
+		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
+		/// # Errors
+		/// * `VerifiableCredentialFingerPrintExists` - Verifiable Credential Finger Print already exists
+		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::create_verifiable_credential())]
 		pub fn create_verifiable_credential(
 			origin: OriginFor<T>,
@@ -332,6 +349,12 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		/// Revoke Verifiable Credential
+		/// # Arguments
+		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// # Errors
+		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print does not exist
+		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::revoke_verifiable_credential())]
 		pub fn revoke_verifiable_credential(
 			origin: OriginFor<T>,
@@ -358,6 +381,13 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		/// Update Verifiable Credential
+		/// # Arguments
+		/// * `vc_finger_print` - Verifiable Credential Finger Print
+		/// * `verifiable_credential_input_metadata` - Verifiable Credential Input Metadata
+		/// # Errors
+		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print does not exist
+		/// * `InvalidPublicKey` - Public Key is invalid
 		#[pallet::weight(T::WeightInfo::update_verifiable_credential())]
 		pub fn update_verifiable_credential(
 			origin: OriginFor<T>,
@@ -420,6 +450,8 @@ pub mod pallet {
 			let block_number = <frame_system::Pallet<T>>::block_number();
 			let mut vc_log =
 				VerifiableCredentialLog { account_id, block_number: Some(block_number), status };
+
+				
 
 			match VerifiableCredentialTrail::<T>::get(&vc_finger_print) {
 				None => {
