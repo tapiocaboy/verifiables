@@ -503,6 +503,7 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
+		// TODO: implement for other supported crypto types pks
 		/// Increment the cluster id generator and return the id
 		fn is_substrate_public_key(public_key: BoundedVec<u8, T::PublicKeySize>) -> bool {
 			T::AccountId::decode(&mut &public_key.to_vec()[..]).is_ok()
