@@ -36,7 +36,7 @@ fn get_did_resolution_metadata() -> BoundedVec<u8, MetadataSize> {
 }
 
 fn get_did_uri() -> BoundedVec<u8, DIDURISize> {
-	let did_uri: BoundedVec<u8, DIDURISize> = "did:neos:0x1234567890123456789012345678901234567890"
+	let did_uri: BoundedVec<u8, DIDURISize> = "did:alto:0x1234567890123456789012345678901234567890"
 		.as_bytes()
 		.to_vec()
 		.try_into()
