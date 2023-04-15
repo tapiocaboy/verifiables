@@ -82,9 +82,6 @@ pub fn prepare_benchmark_verifiable_credential<T: Config>() {
 benchmarks! {
 
 	create_did {
-		let alice: T::AccountId = get_account::<T>("ALICE");
-		// let bob: T::AccountId = get_account::<T>("BOB");
-
 		let did_uri: BoundedVec<u8, T::DIDURISize> = DID_URI
 		.as_bytes()
 		.to_vec()
@@ -156,7 +153,7 @@ benchmarks! {
 
 		let sig: BoundedVec<u8, T::MetadataSize> = BoundedVec::default();
 
-		let  did_input: DIDMetadataPayload<T::AccountId, T::MetadataSize> = DIDMetadataPayload {
+		let did_input: DIDMetadataPayload<T::AccountId, T::MetadataSize> = DIDMetadataPayload {
 			signatures: sig.clone(),
 			did_resolution_metadata: Some(did_resolution_metadata.clone()),
 			did_document_metadata: Some(did_document_metadata.clone()),
@@ -164,7 +161,7 @@ benchmarks! {
 			sender_account_id: get_account::<T>("BOB"),
 		};
 
-	}: _(origin::<T>("ALICE"),did_uri.clone(), did_input)
+	}: _(origin::<T>("ALICE"), did_uri.clone(), did_input)
 	verify {
 		assert!(DIDDocument::<T>::get(&did_uri).is_some());
 
@@ -186,19 +183,19 @@ benchmarks! {
 
 	create_verifiable_credential{
 		let vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize> = VC_FINGERPRINT.as_bytes().to_vec().try_into().unwrap();
-	let public_key: BoundedVec<u8, T::PublicKeySize> = vec![
-		0, 1, 217, 200, 51, 244, 152, 125, 173, 92, 30, 224, 60, 141, 221, 44, 65, 132, 45,
-		94, 199, 150, 116, 108, 95, 18, 118, 246, 86, 167, 64, 132, 76,
-	]
-		.try_into()
-		.unwrap();
-	let vc_metadata_input : VerifiableCredentialMetadataPayload<T::AccountId, T::PublicKeySize>= VerifiableCredentialMetadataPayload {
-		account_id: Some(get_account::<T>("BOB")),
-		public_key: public_key.clone(),
-		active: Some(true),
-	};
+		let public_key: BoundedVec<u8, T::PublicKeySize> = vec![
+			0, 1, 217, 200, 51, 244, 152, 125, 173, 92, 30, 224, 60, 141, 221, 44, 65, 132, 45,
+			94, 199, 150, 116, 108, 95, 18, 118, 246, 86, 167, 64, 132, 76,
+		]
+			.try_into()
+			.unwrap();
+		let vc_metadata_input : VerifiableCredentialMetadataPayload<T::AccountId, T::PublicKeySize>= VerifiableCredentialMetadataPayload {
+			account_id: Some(get_account::<T>("BOB")),
+			public_key: public_key.clone(),
+			active: Some(true),
+		};
 
-	}: _(origin::<T>("ALICE"),vc_fingerprint.clone(),vc_metadata_input.clone())
+	}: _(origin::<T>("ALICE"), vc_fingerprint.clone(),vc_metadata_input.clone())
 	verify {
 		assert!(VerifiableCredential::<T>::get(&vc_fingerprint).is_some());
 		assert!(VerifiableCredential::<T>::get(&vc_fingerprint).unwrap() == VerifiableCredentialMetadata {
@@ -225,7 +222,7 @@ benchmarks! {
 			active: Some(true),
 		};
 
-	}: _(origin::<T>("ALICE"),vc_fingerprint.clone(),vc_metadata_input.clone())
+	}: _(origin::<T>("ALICE"), vc_fingerprint.clone(),vc_metadata_input.clone())
 	verify {
 		assert!(VerifiableCredential::<T>::get(&vc_fingerprint).is_some());
 		assert_eq!(VerifiableCredential::<T>::get(&vc_fingerprint).unwrap().account_id, Some(get_account::<T>("BOB")));
@@ -240,6 +237,24 @@ benchmarks! {
 	}: _(origin::<T>("ALICE"),vc_fingerprint.clone())
 	verify {
 		assert!(VerifiableCredential::<T>::get(&vc_fingerprint).is_none());
+
+	}
+
+	trace_credential {
+		prepare_benchmark_verifiable_credential::<T>();
+		let vc_fingerprint: BoundedVec<u8, T::VCFingerPrintSize> = VC_FINGERPRINT.as_bytes().to_vec().try_into().unwrap();
+
+
+	}: _(origin::<T>("ALICE"),
+		Some(get_account::<T>("BOB")),
+		vc_fingerprint.clone(),
+		VerifiableCredentialStatus::Created
+	)
+	verify {
+		assert!(VerifiableCredentialTrail::<T>::get(&vc_fingerprint).is_some());
+		let results = VerifiableCredentialTrail::<T>::get(&vc_fingerprint).unwrap();
+		assert_eq!(results[0].account_id, Some(get_account::<T>("BOB")));
+		assert_eq!(results[0].status, VerifiableCredentialStatus::Created);
 	}
 }
 
