@@ -427,6 +427,13 @@ pub mod pallet {
 			Ok(().into())
 		}
 
+		/// Trace credential
+		/// # Arguments
+		/// * `account_id` - Account Id
+		/// * `vc_fingerprint` - Verifiable Credential Finger Print
+		/// * `status` - Verifiable Credential Status
+		/// # Errors
+		/// * `VerifiableCredentialFingerPrintDoesNotExist` - Verifiable Credential Finger Print
 		#[pallet::weight(T::WeightInfo::trace_credential())]
 		pub fn trace_credential(
 			origin: OriginFor<T>,
