@@ -1,0 +1,45 @@
+[package]
+name = "pallet-verifiable"
+version = "0.0.1"
+description = "Pallet to facilitate decentralised identifiers and verifiable credentials."
+authors = ["Gayan <kalanamith@gmail.com>"]
+homepage = ""
+edition = "2021"
+license = "APACHE LICENSE, VERSION 2.0"
+publish = false
+repository = ""
+
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+[dependencies]
+codec                           = { package = "parity-scale-codec", version = "3.1.5", default-features = false, features = ["derive"] }
+frame-support                   = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+frame-system                    = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+scale-info                      = { version = "2.1.1", default-features = false, features = ["derive"] }
+serde                           = { version = '1.0.137', features = ['derive'], optional = true, default-features = false }
+sp-core                         = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+sp-io                           = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+sp-runtime                      = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+sp-std                          = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30", default-features = false }
+frame-benchmarking 				= { default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30" }
+
+[dev-dependencies]
+pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.30" }
+
+
+[features]
+default = ["std"]
+std = [
+	'codec/std',
+	'sp-std/std',
+	'sp-io/std',
+	'serde',
+	'sp-runtime/std',
+	'frame-support/std',
+	'sp-core/std',
+	'frame-system/std',
+	'frame-benchmarking/std',
+]
+runtime-benchmarks = ["frame-benchmarking/runtime-benchmarks"]
+try-runtime = ["frame-support/try-runtime"]

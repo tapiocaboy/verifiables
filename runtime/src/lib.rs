@@ -45,8 +45,7 @@ use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
-/// Import the template pallet.
-pub use pallet_template;
+pub use pallet_verifiable;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -270,9 +269,22 @@ impl pallet_sudo::Config for Runtime {
 	type RuntimeCall = RuntimeCall;
 }
 
-/// Configure the pallet-template in pallets/template.
-impl pallet_template::Config for Runtime {
+parameter_types! {
+	pub const MaxMetadataSize: u32 = 2048;
+	pub const MaxDIDsPerAccount: u32 = 100;
+	pub const PublicKeySize: u32 = 128;
+	pub const VCFingerPrintSize: u32 = 32;
+	pub const DIDURISize: u32 = 57;
+}
+
+impl pallet_verifiable::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
+	type MetadataSize = MaxMetadataSize;
+	type MaxDIDsPerAccount = MaxDIDsPerAccount;
+	type PublicKeySize = PublicKeySize;
+	type VCFingerPrintSize = VCFingerPrintSize;
+	type DIDURISize = DIDURISize;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -291,8 +303,8 @@ construct_runtime!(
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
-		// Include the custom logic from the pallet-template in the runtime.
-		TemplateModule: pallet_template,
+
+		Verifiable: pallet_verifiable,
 	}
 );
 
@@ -339,7 +351,7 @@ mod benches {
 		[frame_system, SystemBench::<Runtime>]
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
-		[pallet_template, TemplateModule]
+		[pallet_verifiable, Verifiable]
 	);
 }
 
